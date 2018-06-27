@@ -132,13 +132,14 @@ module GoogleIDToken
       end
 
       if payload
-        if !(payload.has_key?('aud') && payload['aud'] == aud)
+        unless payload.key?('aud') && (payload['aud'] == aud ||
+            (aud.is_a?(Array) && aud.include?(payload['aud'])))
           raise AudienceMismatchError, 'Token audience mismatch'
         end
         if cid && payload['cid'] != cid
           raise ClientIDMismatchError, 'Token client-id mismatch'
         end
-        if !GOOGLE_ISSUERS.include?(payload['iss'])
+        unless GOOGLE_ISSUERS.include?(payload['iss'])
           raise InvalidIssuerError, 'Token issuer mismatch'
         end
         payload
